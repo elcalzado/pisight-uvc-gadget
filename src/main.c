@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "activity.h"
 #include "config.h"
 #include "configfs.h"
 #include "events.h"
@@ -180,6 +181,7 @@ done:
 	video_source_destroy(src);
 	events_cleanup(&events);
 	configfs_free_uvc_function(fc);
+	gpio_reset();
 
 	return ret;
 }

@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "activity.h"
 #include "events.h"
 #include "stream.h"
 #include "uvc.h"
@@ -240,14 +241,12 @@ static int uvc_stream_start(struct uvc_stream *stream)
 
 	switch (stream->src->type) {
 	case VIDEO_SOURCE_DMABUF:
-		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
-						stream);
+		video_source_set_buffer_handler(stream->src, uvc_stream_source_process, stream);
 		return uvc_stream_start_alloc(stream);
 	case VIDEO_SOURCE_STATIC:
 		return uvc_stream_start_no_alloc(stream);
 	case VIDEO_SOURCE_ENCODED:
-		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
-						stream);
+		video_source_set_buffer_handler(stream->src, uvc_stream_source_process, stream);
 		return uvc_stream_start_encoded(stream);
 	default:
 		fprintf(stderr, "invalid video source type\n");
@@ -276,10 +275,15 @@ static int uvc_stream_stop(struct uvc_stream *stream)
 
 void uvc_stream_enable(struct uvc_stream *stream, int enable)
 {
-	if (enable)
-		uvc_stream_start(stream);
-	else
+	if (enable) {
+		activity_led_on();
+		int ret = uvc_stream_start(stream);
+		if (ret < 0) activity_led_error();
+	}
+	else {
 		uvc_stream_stop(stream);
+		activity_led_off();
+	}
 }
 
 int uvc_stream_set_format(struct uvc_stream *stream,

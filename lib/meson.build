@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 libuvcgadget_sources = files([
+  'activity.c',
   'configfs.c',
   'events.c',
   'jpg-source.c',
@@ -25,7 +26,7 @@ endif
 
 libuvcgadget = shared_library('uvcgadget',
                               libuvcgadget_sources,
-                              dependencies : [libcamera, libjpeg, threads],
+                              dependencies : [libcamera, libjpeg, threads, pigpio],
                               version : uvc_gadget_version,
                               install : true,
                               include_directories : [includes, config_includes])
