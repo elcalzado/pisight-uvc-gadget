@@ -61,6 +61,7 @@ static void sigint_handler(int signal __attribute__((unused)))
 {
 	/* Stop the main loop when the user presses CTRL-C */
 	events_stop(sigint_events);
+	gpio_cleanup();
 }
 
 int main(int argc, char *argv[])
@@ -125,6 +126,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	gpio_init();
+
 	/*
 	 * Create the events handler. Register a signal handler for SIGINT,
 	 * received when the user presses CTRL-C. This will allow the main loop
@@ -181,7 +184,6 @@ done:
 	video_source_destroy(src);
 	events_cleanup(&events);
 	configfs_free_uvc_function(fc);
-	gpio_reset();
 
 	return ret;
 }

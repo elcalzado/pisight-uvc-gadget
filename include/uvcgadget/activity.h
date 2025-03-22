@@ -37,6 +37,6 @@ int activity_led_error(void);
  *
  * Does not return anything.
  */
-void gpio_reset(void);
+void gpio_cleanup(void);
 
 #endif // ACTIVITY_H

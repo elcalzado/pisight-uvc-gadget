@@ -21,9 +21,10 @@ int gpio_init() {
 }
 
 int activity_led_on() {
-    if (gpio_init()) return 1;
+    if (!gpio_initialized) return 1;
 
-    gpioSetMode(activity_led, PI_OUTPUT);
+    if (gpioGetMode(activity_led) != PI_OUTPUT)
+        gpioSetMode(activity_led, PI_OUTPUT);
     gpioWrite(activity_led, PI_HIGH);
 
     printf("Activity led on\n");
@@ -32,23 +33,22 @@ int activity_led_on() {
 }
 
 void activity_led_off() {
-    if (gpio_initialized && gpioGetMode(activity_led) != PI_INPUT) {
+    if (gpio_initialized) {
+        if (gpioGetMode(activity_led) != PI_OUTPUT)
+            gpioSetMode(activity_led, PI_OUTPUT);
         gpioWrite(activity_led, PI_LOW);
-        gpioSetMode(activity_led, PI_INPUT);
 
         printf("Activity led off\n");
-
-        gpioTerminate();
-
-        gpio_initialized = 0;
     }
 }
 
 int activity_led_error() {
-    if (gpio_init()) return 1;
+    if (!gpio_initialized) return 1;
 
     printf("Activity led indicating error\n");
 
+    if (gpioGetMode(activity_led) != PI_OUTPUT)
+        gpioSetMode(activity_led, PI_OUTPUT);
     for (int i = 0; i < 5; i++) {
         gpioWrite(activity_led, PI_HIGH);
         time_sleep(1);
@@ -56,19 +56,17 @@ int activity_led_error() {
         time_sleep(1);
     }
 
-    gpioSetMode(activity_led, PI_INPUT);
-    gpioTerminate();
-
     return 0;
 }
 
-void gpio_reset() {
+void gpio_cleanup() {
     if (gpio_initialized) {
-        if (gpioGetMode(activity_led) != PI_INPUT) {
-            gpioWrite(activity_led, PI_LOW);
-            gpioSetMode(activity_led, PI_INPUT);
-        }
+        if (gpioGetMode(activity_led) != PI_OUTPUT)
+            gpioSetMode(activity_led, PI_OUTPUT);
+        gpioWrite(activity_led, PI_LOW);
+        gpioSetMode(activity_led, PI_INPUT);
 
         gpioTerminate();
+        gpio_initialized = 0;
     }
 }
