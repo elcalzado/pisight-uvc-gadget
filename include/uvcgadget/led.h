@@ -2,12 +2,12 @@
 #define LED_H
 
 // #define BOARD_PIN_NUM 3
-#define LOGO_BCM_PIN_NUM 2;
-const int logo_led = LOGO_BCM_PIN_NUM;
-
+#define LOGO_BCM_PIN_NUM 2
 // #define BOARD_PIN_NUM 40
-#define ACTIVITY_BCM_PIN_NUM 21;
-const int activity_led = ACTIVITY_BCM_PIN_NUM;
+#define ACTIVITY_BCM_PIN_NUM 21
+
+extern const int logo_led;
+extern const int activity_led;
 
 /*
  * led_on - Turn on the activity led

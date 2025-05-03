@@ -6,6 +6,9 @@
 
 static int gpio_initialized = 0;
 
+const int logo_led = LOGO_BCM_PIN_NUM;
+const int activity_led = ACTIVITY_BCM_PIN_NUM;
+
 const int num_output_pins = 2;
 const int output_pins[] = {logo_led, activity_led};
 
@@ -33,8 +36,6 @@ int gpio_init()
         }
     }
 
-    printf("GPIO INIT DONE\n");
-
     gpio_initialized = 1;
 
     return 0;
@@ -52,8 +53,6 @@ void gpio_cleanup()
                 fprintf(stderr, "error: Failed to set GPIO mode to INPUT during cleanup.\n");
             }
         }
-
-        printf("GPIO CLEAN DONE\n");
 
         gpioTerminate();
         gpio_initialized = 0;

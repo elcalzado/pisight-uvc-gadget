@@ -263,7 +263,7 @@ static int uvc_stream_start(struct uvc_stream *stream)
 	if (ret == 0) {
 		if (led_on(activity_led) != 0) {
 			fprintf(stderr, "Failed to turn on activity LED. Stopping video stream for privacy concerns.\n");
-			uvc_stream_stop(stream);
+			uvc_stream_enable(stream, 0);
 			return -EIO;
 		}
 	}
