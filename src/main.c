@@ -134,13 +134,14 @@ int main(int argc, char *argv[])
 	events_init(&events);
 
 	sigint_events = &events;
-	signal(SIGINT, sigint_handler);
 
 	if (gpio_init() != 0) {
 		fprintf(stderr, "Failed to initialize GPIO. Exiting.\n");
 		ret = 1;
 		goto done;
 	}
+
+	signal(SIGINT, sigint_handler);
 
 	led_on(logo_led);
 
