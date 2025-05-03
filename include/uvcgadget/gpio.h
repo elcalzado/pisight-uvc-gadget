@@ -1,20 +1,6 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-// #define BOARD_PIN_NUM 3
-#define LOGO_BCM_PIN_NUM 2;
-const int logo_led = LOGO_BCM_PIN_NUM;
-
-// #define BOARD_PIN_NUM 40
-#define ACTIVITY_BCM_PIN_NUM 21;
-const int activity_led = ACTIVITY_BCM_PIN_NUM;
-
-const int num_output_pins = 2;
-const int output_pins[] = {logo_led, activity_led};
-
-const int num_input_pins = 0;
-const int input_pins[] = {};
-
 /*
  * gpio_init - Initializes the gpio library
  *

@@ -2,8 +2,15 @@
 #include <stdio.h>
 
 #include "gpio.h"
+#include "led.h"
 
 static int gpio_initialized = 0;
+
+const int num_output_pins = 2;
+const int output_pins[] = {logo_led, activity_led};
+
+const int num_input_pins = 0;
+const int input_pins[] = {};
 
 int gpio_init()
 {

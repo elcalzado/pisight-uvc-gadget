@@ -246,12 +246,15 @@ static int uvc_stream_start(struct uvc_stream *stream)
 		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
 						stream);
 		ret = uvc_stream_start_alloc(stream);
+		break;
 	case VIDEO_SOURCE_STATIC:
 		ret = uvc_stream_start_no_alloc(stream);
+		break;
 	case VIDEO_SOURCE_ENCODED:
 		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
 						stream);
 		ret = uvc_stream_start_encoded(stream);
+		break;
 	default:
 		fprintf(stderr, "invalid video source type\n");
 		return -EINVAL;
@@ -259,7 +262,7 @@ static int uvc_stream_start(struct uvc_stream *stream)
 
 	if (ret == 0) {
 		if (led_on(activity_led) != 0) {
-			fprintf(stderr, "Failed to turn on activity LED. Stopping video stream for privacy concerns.\n")
+			fprintf(stderr, "Failed to turn on activity LED. Stopping video stream for privacy concerns.\n");
 			uvc_stream_stop(stream);
 			return -EIO;
 		}
@@ -283,7 +286,7 @@ static int uvc_stream_stop(struct uvc_stream *stream)
 	video_source_free_buffers(stream->src);
 
 	if (led_off(activity_led) != 0) {
-		fprintf(stderr, "Failed to turn off activity LED.\n")
+		fprintf(stderr, "Failed to turn off activity LED.\n");
 		return -EIO;
 	}
 
