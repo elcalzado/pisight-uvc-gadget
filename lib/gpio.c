@@ -1,10 +1,12 @@
-#include <signal.h>
+#include <pigpio.h>
 #include <stdio.h>
+
 #include "gpio.h"
 
 static int gpio_initialized = 0;
 
-int gpio_init() {
+int gpio_init()
+{
     if (gpioInitialise() == PI_INIT_FAILED) {
         fprintf(stderr, "error: Failed to initialize the GPIO interface.\n");
         return 1;
@@ -24,12 +26,15 @@ int gpio_init() {
         }
     }
 
+    printf("GPIO INIT DONE\n");
+
     gpio_initialized = 1;
 
     return 0;
 }
 
-void gpio_cleanup() {
+void gpio_cleanup()
+{
     if (gpio_initialized) {
         for (int i = 0; i < num_output_pins; i++) {
             if (gpioWrite(output_pins[i], PI_LOW) != 0) {
@@ -41,7 +46,14 @@ void gpio_cleanup() {
             }
         }
 
+        printf("GPIO CLEAN DONE\n");
+
         gpioTerminate();
         gpio_initialized = 0;
     }
+}
+
+int is_gpio_init()
+{
+    return gpio_initialized;
 }

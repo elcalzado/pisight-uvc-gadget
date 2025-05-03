@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "events.h"
+#include "led.h"
 #include "stream.h"
 #include "uvc.h"
 #include "v4l2.h"
@@ -236,25 +237,35 @@ error_free_source:
 
 static int uvc_stream_start(struct uvc_stream *stream)
 {
+	int ret;
+
 	printf("Starting video stream.\n");
 
 	switch (stream->src->type) {
 	case VIDEO_SOURCE_DMABUF:
 		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
 						stream);
-		return uvc_stream_start_alloc(stream);
+		ret = uvc_stream_start_alloc(stream);
 	case VIDEO_SOURCE_STATIC:
-		return uvc_stream_start_no_alloc(stream);
+		ret = uvc_stream_start_no_alloc(stream);
 	case VIDEO_SOURCE_ENCODED:
 		video_source_set_buffer_handler(stream->src, uvc_stream_source_process,
 						stream);
-		return uvc_stream_start_encoded(stream);
+		ret = uvc_stream_start_encoded(stream);
 	default:
 		fprintf(stderr, "invalid video source type\n");
-		break;
+		return -EINVAL;
 	}
 
-	return -EINVAL;
+	if (ret == 0) {
+		if (led_on(activity_led) != 0) {
+			fprintf(stderr, "Failed to turn on activity LED. Stopping video stream for privacy concerns.\n")
+			uvc_stream_stop(stream);
+			return -EIO;
+		}
+	}
+
+	return ret;
 }
 
 static int uvc_stream_stop(struct uvc_stream *stream)
@@ -270,6 +281,11 @@ static int uvc_stream_stop(struct uvc_stream *stream)
 
 	v4l2_free_buffers(sink);
 	video_source_free_buffers(stream->src);
+
+	if (led_off(activity_led) != 0) {
+		fprintf(stderr, "Failed to turn off activity LED.\n")
+		return -EIO;
+	}
 
 	return 0;
 }

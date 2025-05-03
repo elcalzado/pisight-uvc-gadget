@@ -1,10 +1,8 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include <pigpio.h>
-
 // #define BOARD_PIN_NUM 3
-#define ACTIVITY_BCM_PIN_NUM 2;
+#define LOGO_BCM_PIN_NUM 2;
 const int logo_led = LOGO_BCM_PIN_NUM;
 
 // #define BOARD_PIN_NUM 40
@@ -30,5 +28,12 @@ int gpio_init(void);
  * Does not return anything.
  */
 void gpio_cleanup(void);
+
+/*
+ * is_gpio_init() - Checks if GPIO has been initialized
+ *
+ * Returns 1 if initialized, zero otherwise.
+ */
+int is_gpio_init(void);
 
 #endif // GPIO_H

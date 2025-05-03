@@ -1,8 +1,6 @@
 #ifndef LED_H
 #define LED_H
 
-#include "gpio.h"
-
 /*
  * led_on - Turn on the activity led
  *
