@@ -14,6 +14,8 @@
 #include "config.h"
 #include "configfs.h"
 #include "events.h"
+#include "gpio.h"
+#include "led.h"
 #include "stream.h"
 #include "libcamera-source.h"
 #include "v4l2-source.h"
@@ -132,7 +134,16 @@ int main(int argc, char *argv[])
 	events_init(&events);
 
 	sigint_events = &events;
+
+	if (gpio_init() != 0) {
+		fprintf(stderr, "Failed to initialize GPIO. Exiting.\n");
+		ret = 1;
+		goto done;
+	}
+
 	signal(SIGINT, sigint_handler);
+
+	led_on(logo_led);
 
 	/* Create and initialize a video source. */
 	if (cap_device)
@@ -180,6 +191,7 @@ done:
 	video_source_destroy(src);
 	events_cleanup(&events);
 	configfs_free_uvc_function(fc);
+	gpio_cleanup();
 
 	return ret;
 }
