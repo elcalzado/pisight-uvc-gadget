@@ -3,7 +3,9 @@
 libuvcgadget_sources = files([
   'configfs.c',
   'events.c',
+  'gpio.c',
   'jpg-source.c',
+  'led.c',
   'slideshow-source.c',
   'stream.c',
   'test-source.c',
@@ -25,7 +27,7 @@ endif
 
 libuvcgadget = shared_library('uvcgadget',
                               libuvcgadget_sources,
-                              dependencies : [libcamera, libjpeg, threads],
+                              dependencies : [libcamera, libjpeg, threads, pigpio],
                               version : uvc_gadget_version,
                               install : true,
                               include_directories : [includes, config_includes])
