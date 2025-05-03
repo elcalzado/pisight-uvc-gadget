@@ -7,6 +7,7 @@ uvcgadget_public_headers = files([
   'led.h',
   'libcamera-source.h',
   'list.h',
+  'shutter.h',
   'stream.h',
   'timer.h',
   'v4l2-source.h',

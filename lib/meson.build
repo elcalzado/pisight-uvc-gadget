@@ -6,6 +6,7 @@ libuvcgadget_sources = files([
   'gpio.c',
   'jpg-source.c',
   'led.c',
+  'shutter.c',
   'slideshow-source.c',
   'stream.c',
   'test-source.c',
