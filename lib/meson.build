@@ -3,7 +3,6 @@
 libuvcgadget_sources = files([
   'configfs.c',
   'events.c',
-  'gpio.c',
   'jpg-source.c',
   'led.c',
   'shutter.c',

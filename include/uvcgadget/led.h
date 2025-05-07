@@ -23,7 +23,7 @@ int led_off(int led);
  *
  * Returns 0 if success, returns 1 otherwise.
  */
-int led_init(int logo_pin, int activity_pin);
+int led_init(int *logo_pin, int *activity_pin);
 
 /*
  * led_cleanup - Turns off LEDs and sets GPIO to input

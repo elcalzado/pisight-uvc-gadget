@@ -120,6 +120,6 @@ void uvc_stream_enable(struct uvc_stream *stream, int enable);
  *
  * This function is called when GPIO pin for shutter sensor is HIGH.
  */
-static int uvc_stream_pause(struct uvc_stream *stream, int pause);
+int uvc_stream_pause(struct uvc_stream *stream, int pause);
 
 #endif /* __STREAM_H__ */

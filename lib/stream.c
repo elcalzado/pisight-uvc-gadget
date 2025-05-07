@@ -20,11 +20,18 @@
 #include "video-buffers.h"
 #include "video-source.h"
 
+enum stream_state {
+	STREAM_STATE_STOPPED,
+	STREAM_STATE_RUNNING,
+	STREAM_STATE_PAUSED
+};
+
 /*
  * struct uvc_stream - Representation of a UVC stream
  * @src: video source
  * @uvc: UVC V4L2 output device
  * @events: struct events containing event information
+ * @state: Used for LED state
  */
 struct uvc_stream
 {
@@ -33,11 +40,7 @@ struct uvc_stream
 
 	struct events *events;
 
-	enum {
-		STREAM_STATE_STOPPED,
-		STREAM_STATE_RUNNING,
-		STREAM_STATE_PAUSED
-	} state;
+	enum stream_state state;
 };
 
 /* ---------------------------------------------------------------------------
@@ -245,7 +248,7 @@ error_free_source:
 	return ret;
 }
 
-static int uvc_stream_set_state(struct uvc_stream *stream, int new_state) 
+static int uvc_stream_set_state(struct uvc_stream *stream, enum stream_state new_state) 
 {
 	if (new_state != stream->state) {
 		stream->state = new_state;
@@ -267,7 +270,7 @@ static int uvc_stream_set_state(struct uvc_stream *stream, int new_state)
 	return 0;
 }
 
-static int uvc_stream_pause(struct uvc_stream *stream, int pause)
+int uvc_stream_pause(struct uvc_stream *stream, int pause)
 {
 	int new_state = pause ? STREAM_STATE_PAUSED : STREAM_STATE_RUNNING;
 

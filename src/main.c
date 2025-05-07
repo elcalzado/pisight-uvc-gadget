@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 		ret = 1;
 		goto done;
 	}
-	if (shutter_init(NULL, NULL, NULL, stream, &events); != 0) {
+	if (shutter_init(NULL, NULL, NULL, stream, &events) != 0) {
 		fprintf(stderr, "Failed to initialize shutter sensor. Exiting.\n");
 		ret = 1;
 		goto done;

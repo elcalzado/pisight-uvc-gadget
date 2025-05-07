@@ -3,7 +3,6 @@
 uvcgadget_public_headers = files([
   'configfs.h',
   'events.h',
-  'gpio.h',
   'led.h',
   'libcamera-source.h',
   'list.h',

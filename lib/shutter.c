@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "events.h"
 #include "shutter.h"
 #include "stream.h"
 
@@ -33,12 +34,13 @@ static void shutter_event(void *priv __attribute__((unused)))
             !shutter_status ? "ACTIVE" : "PAUSED");
 }
 
-void shutter_callback(int pin __attribute__((unused)), uint8_t level, uint32_t tick __attribute__((unused)))
+void shutter_callback(int pin __attribute__((unused)), int level, uint32_t tick __attribute__((unused)))
 {
-    write(shutter_pipe_fds[1], &level, 1);
+    uint8_t l = (uint8_t)level;
+    write(shutter_pipe_fds[1], &l, 1);
 }
 
-int shutter_init(int shutter_power_pin, int shutter_output_pin, int shutter_anode_pin, struct uvc_stream *stream_ptr, struct events *events_ptr)
+int shutter_init(int *shutter_power_pin, int *shutter_output_pin, int *shutter_anode_pin, struct uvc_stream *stream_ptr, struct events *events_ptr)
 {
     stream = stream_ptr;
     events = events_ptr;
@@ -48,13 +50,13 @@ int shutter_init(int shutter_power_pin, int shutter_output_pin, int shutter_anod
         return 1;
     }
 
-    fcntl(shutter_pipe_fds[0], FSETFL, O_NONBLOCK);
-    fcntl(shutter_pipe_fds[1], FSETFL, O_NONBLOCK);
+    fcntl(shutter_pipe_fds[0], F_SETFL, O_NONBLOCK);
+    fcntl(shutter_pipe_fds[1], F_SETFL, O_NONBLOCK);
 
     events_watch_fd(events, shutter_pipe_fds[0], EVENT_READ, shutter_event, NULL);
 
     if (shutter_power_pin != NULL) {
-        shutter_power = shutter_power_pin;
+        shutter_power = *shutter_power_pin;
     }
 
     if (gpioSetMode(shutter_power, PI_OUTPUT) != 0) {
@@ -71,7 +73,7 @@ int shutter_init(int shutter_power_pin, int shutter_output_pin, int shutter_anod
     if (shutter_output_pin == NULL) {
         shutter_output = SHUTTER_OUTPUT_BCM_PIN_NUM;
     } else {
-        shutter_output = shutter_output_pin;
+        shutter_output = *shutter_output_pin;
     }
 
     if (gpioSetMode(shutter_output, PI_INPUT) != 0) {
@@ -83,7 +85,7 @@ int shutter_init(int shutter_power_pin, int shutter_output_pin, int shutter_anod
     if (shutter_anode_pin == NULL) {
         shutter_anode = SHUTTER_ANODE_BCM_PIN_NUM;
     } else {
-        shutter_anode = shutter_anode_pin;
+        shutter_anode = *shutter_anode_pin;
     }
 
     if (gpioSetMode(shutter_anode, PI_INPUT) != 0) {
