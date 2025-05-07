@@ -166,6 +166,11 @@ int main(int argc, char *argv[])
 
 	sigint_events = &events;
 
+	/* Disable pigpio's internal signal handler. */
+	int cfg = gpioCfgGetInternals();
+	cfg |= PI_CFG_NOSIGHANDLER;
+	gpioCfgSetInternals(cfg);
+
 	if (gpioInitialise() == PI_INIT_FAILED) {
 		fprintf(stderr, "Failed to initialize GPIO. Exiting.\n");
 		ret = 1;
