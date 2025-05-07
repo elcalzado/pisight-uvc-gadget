@@ -1,8 +1,10 @@
 #ifndef LED_H
 #define LED_H
 
-extern int logo_led;
-extern int activity_led;
+// #define default logo pin
+#define LOGO_BCM_PIN_NUM 2
+// #define default activity pin
+#define ACTIVITY_BCM_PIN_NUM 21
 
 /*
  * led_on - Turn on an LED specified by pin num
@@ -23,7 +25,7 @@ int led_off(int led);
  *
  * Returns 0 if success, returns 1 otherwise.
  */
-int led_init(int *logo_pin, int *activity_pin);
+int led_init(int logo_pin, int activity_pin);
 
 /*
  * led_cleanup - Turns off LEDs and sets GPIO to input
@@ -31,5 +33,8 @@ int led_init(int *logo_pin, int *activity_pin);
  * Doesn't return anything.
  */
 void led_cleanup();
+
+// Returns the pin number specified for activity LED
+int get_activity_led();
 
 #endif // LED_H

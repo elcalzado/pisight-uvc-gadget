@@ -10,6 +10,8 @@
 #include <pigpio.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -28,15 +30,18 @@ static void usage(const char *argv0)
 {
 	fprintf(stderr, "Usage: %s [options] <uvc device>\n", argv0);
 	fprintf(stderr, "Available options are\n");
+	fprintf(stderr, " -a pin        GPIO pin for activity LED (default: %d)\n", ACTIVITY_BCM_PIN_NUM);
 #ifdef HAVE_LIBCAMERA
 	fprintf(stderr, " -c <index|id> libcamera camera name\n");
 #endif
-	fprintf(stderr, " -d device	V4L2 source device\n");
-	fprintf(stderr, " -i image	MJPEG image\n");
-	fprintf(stderr, " -s directory	directory of slideshow images\n");
-	fprintf(stderr, " -h		Print this help screen and exit\n");
+	fprintf(stderr, " -d device     V4L2 source device\n");
+	fprintf(stderr, " -i image      MJPEG image\n");
+	fprintf(stderr, " -l pin        GPIO pin for logo LED (default: %d)\n", LOGO_BCM_PIN_NUM);
+	fprintf(stderr, " -p "p o a"    GPIO pins for shutter sensor (default %d %d %d)\n", SHUTTER_POWER_BCM_PIN_NUM, SHUTTER_OUTPUT_BCM_PIN_NUM, SHUTTER_ANODE_BCM_PIN_NUM);
+	fprintf(stderr, " -s directory  directory of slideshow images\n");
+	fprintf(stderr, " -h            Print this help screen and exit\n");
 	fprintf(stderr, "\n");
-	fprintf(stderr, " <uvc device>	UVC device instance specifier\n");
+	fprintf(stderr, " <uvc device>  UVC device instance specifier\n");
 	fprintf(stderr, "\n");
 
 	fprintf(stderr, "  For ConfigFS devices the <uvc device> parameter can take the form of a shortened\n");
@@ -54,6 +59,16 @@ static void usage(const char *argv0)
 	fprintf(stderr, "    %s g1/functions/uvc.1\n", argv0);
 	fprintf(stderr, "\n");
 	fprintf(stderr, "    %s musb-hdrc.0.auto\n", argv0);
+}
+
+static void get_gpio_pins(int *gpio_pins, int num_pins, char *pins)
+{
+        int i = 0;
+        char *token = strtok(pins, " ");
+        while (token != NULL && i < num_pins) {
+			gpio_pins[i++] = atoi(token);
+			token = strtok(NULL, " ");
+        }
 }
 
 /* Necessary for and only used by signal handler. */
@@ -75,6 +90,10 @@ int main(int argc, char *argv[])
 	char *img_path = NULL;
 	char *slideshow_dir = NULL;
 
+	int logo_pin = -1;
+	int activity_pin = -1;
+	int shutter_pins[] = {-1, -1, -1};
+
 	struct uvc_function_config *fc;
 	struct uvc_stream *stream = NULL;
 	struct video_source *src = NULL;
@@ -82,8 +101,11 @@ int main(int argc, char *argv[])
 	int ret = 0;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "c:d:i:s:k:h")) != -1) {
+	while ((opt = getopt(argc, argv, "a:c:d:i:l:p:s:k:h")) != -1) {
 		switch (opt) {
+		case 'a':
+			activity_pin = atoi(optarg);
+			break;
 #ifdef HAVE_LIBCAMERA
 		case 'c':
 			camera = optarg;
@@ -95,6 +117,14 @@ int main(int argc, char *argv[])
 
 		case 'i':
 			img_path = optarg;
+			break;
+
+		case 'l':
+			logo_pin = atoi(optarg);
+			break;
+
+		case 'p':
+			get_gpio_pins(shutter_pins, optarg);
 			break;
 
 		case 's':
@@ -181,12 +211,12 @@ int main(int argc, char *argv[])
 	uvc_stream_set_video_source(stream, src);
 	uvc_stream_init_uvc(stream, fc);
 
-	if (led_init(NULL, NULL) != 0) {
+	if (led_init(logo_pin, activity_pin) != 0) {
 		fprintf(stderr, "Failed to initialize LEDs. Exiting.\n");
 		ret = 1;
 		goto done;
 	}
-	if (shutter_init(NULL, NULL, NULL, stream, &events) != 0) {
+	if (shutter_init(shutter_pins, stream, &events) != 0) {
 		fprintf(stderr, "Failed to initialize shutter sensor. Exiting.\n");
 		ret = 1;
 		goto done;

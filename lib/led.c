@@ -3,13 +3,8 @@
 
 #include "led.h"
 
-// #define default logo pin
-#define LOGO_BCM_PIN_NUM 2
-// #define default activity pin
-#define ACTIVITY_BCM_PIN_NUM 21
-
-int logo_led = LOGO_BCM_PIN_NUM;
-int activity_led = ACTIVITY_BCM_PIN_NUM;
+static int logo_led = LOGO_BCM_PIN_NUM;
+static int activity_led = ACTIVITY_BCM_PIN_NUM;
 
 int led_on(int led)
 {
@@ -31,10 +26,10 @@ int led_off(int led)
     return 0;
 }
 
-int led_init(int *logo_pin, int *activity_pin)
+int led_init(int logo_pin, int activity_pin)
 {
-    if (logo_pin != NULL) {
-        logo_led = *logo_pin;
+    if (logo_pin != -1) {
+        logo_led = logo_pin;
     }
 
     if (gpioSetMode(logo_led, PI_OUTPUT) != 0) {
@@ -44,8 +39,8 @@ int led_init(int *logo_pin, int *activity_pin)
 
     if (led_on(logo_led) != 0) return 1;
 
-    if (activity_pin != NULL) {
-        activity_led = *activity_pin;
+    if (activity_pin != -1) {
+        activity_led = activity_pin;
     }
 
     if (gpioSetMode(activity_led, PI_OUTPUT) != 0) {
@@ -63,4 +58,8 @@ void led_cleanup()
 
     led_off(activity_led);
     gpioSetMode(activity_led, PI_INPUT);
+}
+
+int get_actitvity_led() {
+    return activity_led;
 }

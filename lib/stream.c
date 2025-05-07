@@ -14,6 +14,7 @@
 
 #include "events.h"
 #include "led.h"
+#include "shutter.h"
 #include "stream.h"
 #include "uvc.h"
 #include "v4l2.h"
@@ -251,16 +252,19 @@ error_free_source:
 static int uvc_stream_set_state(struct uvc_stream *stream, enum stream_state new_state) 
 {
 	if (new_state != stream->state) {
+		if (new_state == STREAM_STATE_RUNNING && get_shutter_status()) {
+			return uvc_stream_pause(stream, 1);
+		}
 		stream->state = new_state;
 
 		if (new_state == STREAM_STATE_RUNNING) {
-			if (led_on(activity_led) != 0) {
+			if (led_on(get_activity_led()) != 0) {
 				fprintf(stderr, "Failed to turn on activity LED.\n");
 				uvc_stream_pause(stream, 1);
 				return -EIO;
 			}
 		} else {
-			if (led_off(activity_led) != 0) {
+			if (led_off(get_activity_led()) != 0) {
 				fprintf(stderr, "Failed to turn off activity LED.\n");
 				return -EIO;
 			}
