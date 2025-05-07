@@ -249,7 +249,7 @@ error_free_source:
 	return ret;
 }
 
-static int uvc_stream_set_state(struct uvc_stream *stream, enum stream_state new_state) 
+static int uvc_stream_set_state(struct uvc_stream *stream, enum stream_state new_state)
 {
 	if (new_state != stream->state) {
 		if (new_state == STREAM_STATE_RUNNING && get_shutter_status()) {

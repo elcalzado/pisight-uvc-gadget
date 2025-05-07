@@ -60,6 +60,6 @@ void led_cleanup()
     gpioSetMode(activity_led, PI_INPUT);
 }
 
-int get_actitvity_led() {
+int get_activity_led() {
     return activity_led;
 }

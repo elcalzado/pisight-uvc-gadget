@@ -37,7 +37,7 @@ static void usage(const char *argv0)
 	fprintf(stderr, " -d device     V4L2 source device\n");
 	fprintf(stderr, " -i image      MJPEG image\n");
 	fprintf(stderr, " -l pin        GPIO pin for logo LED (default: %d)\n", LOGO_BCM_PIN_NUM);
-	fprintf(stderr, " -p "p o a"    GPIO pins for shutter sensor (default %d %d %d)\n", SHUTTER_POWER_BCM_PIN_NUM, SHUTTER_OUTPUT_BCM_PIN_NUM, SHUTTER_ANODE_BCM_PIN_NUM);
+	fprintf(stderr, " -p \"p o a\"    GPIO pins for shutter sensor (default %d %d %d)\n", SHUTTER_POWER_BCM_PIN_NUM, SHUTTER_OUTPUT_BCM_PIN_NUM, SHUTTER_ANODE_BCM_PIN_NUM);
 	fprintf(stderr, " -s directory  directory of slideshow images\n");
 	fprintf(stderr, " -h            Print this help screen and exit\n");
 	fprintf(stderr, "\n");
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'p':
-			get_gpio_pins(shutter_pins, optarg);
+			get_gpio_pins(shutter_pins, 3, optarg);
 			break;
 
 		case 's':

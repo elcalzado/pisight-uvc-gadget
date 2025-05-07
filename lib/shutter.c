@@ -21,7 +21,7 @@ static void shutter_event(void *priv __attribute__((unused)))
     if (read(shutter_pipe_fds[0], &level, 1) != 1) return;
 
     // Open (0) or closed (1)
-    int shutter_status = (level == PI_HIGH) ? 1 : 0;
+    shutter_status = (level == PI_HIGH) ? 1 : 0;
 
     uvc_stream_pause(stream, shutter_status);
 
@@ -65,7 +65,7 @@ int shutter_init(int *shutter_pins, struct uvc_stream *stream_ptr, struct events
         return 1;
     }
 
-    int shutter_output;
+    int shutter_output = SHUTTER_OUTPUT_BCM_PIN_NUM;
     if (shutter_pins[1] != -1) {
         shutter_output = shutter_pins[1];
     }
@@ -75,7 +75,7 @@ int shutter_init(int *shutter_pins, struct uvc_stream *stream_ptr, struct events
         return 1;
     }
 
-    int shutter_anode;
+    int shutter_anode = SHUTTER_ANODE_BCM_PIN_NUM;
     if (shutter_pins[2] != -1) {
         shutter_anode = shutter_pins[2];
     }
