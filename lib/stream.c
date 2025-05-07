@@ -32,6 +32,12 @@ struct uvc_stream
 	struct uvc_device *uvc;
 
 	struct events *events;
+
+	enum {
+		STREAM_STATE_STOPPED,
+		STREAM_STATE_RUNNING,
+		STREAM_STATE_PAUSED
+	} state;
 };
 
 /* ---------------------------------------------------------------------------
@@ -45,7 +51,11 @@ static void uvc_stream_source_process(void *d,
 	struct uvc_stream *stream = d;
 	struct v4l2_device *sink = uvc_v4l2_device(stream->uvc);
 
-	v4l2_queue_buffer(sink, buffer);
+	if (stream->state == STREAM_STATE_RUNNING) {
+		v4l2_queue_buffer(sink, buffer);
+	} else {
+		video_source_queue_buffer(stream->src, buffer);
+	}
 }
 
 static void uvc_stream_uvc_process(void *d)
@@ -235,6 +245,35 @@ error_free_source:
 	return ret;
 }
 
+static int uvc_stream_set_state(struct uvc_stream *stream, int new_state) 
+{
+	if (new_state != stream->state) {
+		stream->state = new_state;
+
+		if (new_state == STREAM_STATE_RUNNING) {
+			if (led_on(activity_led) != 0) {
+				fprintf(stderr, "Failed to turn on activity LED.\n");
+				uvc_stream_pause(stream, 1);
+				return -EIO;
+			}
+		} else {
+			if (led_off(activity_led) != 0) {
+				fprintf(stderr, "Failed to turn off activity LED.\n");
+				return -EIO;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int uvc_stream_pause(struct uvc_stream *stream, int pause)
+{
+	int new_state = pause ? STREAM_STATE_PAUSED : STREAM_STATE_RUNNING;
+
+	return uvc_stream_set_state(stream, new_state);
+}
+
 static int uvc_stream_start(struct uvc_stream *stream)
 {
 	int ret;
@@ -261,11 +300,7 @@ static int uvc_stream_start(struct uvc_stream *stream)
 	}
 
 	if (ret == 0) {
-		if (led_on(activity_led) != 0) {
-			fprintf(stderr, "Failed to turn on activity LED. Stopping video stream for privacy concerns.\n");
-			uvc_stream_enable(stream, 0);
-			return -EIO;
-		}
+		ret = uvc_stream_set_state(stream, STREAM_STATE_RUNNING);
 	}
 
 	return ret;
@@ -285,12 +320,7 @@ static int uvc_stream_stop(struct uvc_stream *stream)
 	v4l2_free_buffers(sink);
 	video_source_free_buffers(stream->src);
 
-	if (led_off(activity_led) != 0) {
-		fprintf(stderr, "Failed to turn off activity LED.\n");
-		return -EIO;
-	}
-
-	return 0;
+	return uvc_stream_set_state(stream, STREAM_STATE_STOPPED);
 }
 
 void uvc_stream_enable(struct uvc_stream *stream, int enable)

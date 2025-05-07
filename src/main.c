@@ -7,6 +7,7 @@
  * Contact: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
  */
 
+#include <pigpio.h>
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,8 +15,8 @@
 #include "config.h"
 #include "configfs.h"
 #include "events.h"
-#include "gpio.h"
 #include "led.h"
+#include "shutter.h"
 #include "stream.h"
 #include "libcamera-source.h"
 #include "v4l2-source.h"
@@ -135,15 +136,13 @@ int main(int argc, char *argv[])
 
 	sigint_events = &events;
 
-	if (gpio_init() != 0) {
+	if (gpioInitialise() == PI_INIT_FAILED) {
 		fprintf(stderr, "Failed to initialize GPIO. Exiting.\n");
 		ret = 1;
 		goto done;
 	}
 
 	signal(SIGINT, sigint_handler);
-
-	led_on(logo_led);
 
 	/* Create and initialize a video source. */
 	if (cap_device)
@@ -182,6 +181,17 @@ int main(int argc, char *argv[])
 	uvc_stream_set_video_source(stream, src);
 	uvc_stream_init_uvc(stream, fc);
 
+	if (led_init(NULL, NULL) != 0) {
+		fprintf(stderr, "Failed to initialize LEDs. Exiting.\n");
+		ret = 1;
+		goto done;
+	}
+	if (shutter_init(NULL, NULL, NULL, stream, &events); != 0) {
+		fprintf(stderr, "Failed to initialize shutter sensor. Exiting.\n");
+		ret = 1;
+		goto done;
+	}
+
 	/* Main capture loop */
 	events_loop(&events);
 
@@ -191,7 +201,9 @@ done:
 	video_source_destroy(src);
 	events_cleanup(&events);
 	configfs_free_uvc_function(fc);
-	gpio_cleanup();
+	led_cleanup();
+	shutter_cleanup();
+	gpioTerminate();
 
 	return ret;
 }

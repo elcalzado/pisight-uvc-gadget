@@ -113,4 +113,13 @@ int uvc_stream_set_frame_rate(struct uvc_stream *stream, unsigned int fps);
  */
 void uvc_stream_enable(struct uvc_stream *stream, int enable);
 
+/*
+ * uvc_stream_pause - Pause/resume video streaming for the UVC stream
+ * @stream: the UVC stream
+ * @paused: 0 to resume the stream, 1 to pause it
+ *
+ * This function is called when GPIO pin for shutter sensor is HIGH.
+ */
+static int uvc_stream_pause(struct uvc_stream *stream, int pause);
+
 #endif /* __STREAM_H__ */
