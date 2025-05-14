@@ -45,7 +45,7 @@ create_uvc() {
     mkdir functions/$FUNCTION
 
     echo "Renaming function_name"
-    echo -n $PRODUCT | sudo tee functions/$FUNCTION/function_name > /dev/null
+    echo -n $PRODUCT > functions/$FUNCTION/function_name
 
     create_frame $FUNCTION 640 480 uncompressed u "333333
 416667
